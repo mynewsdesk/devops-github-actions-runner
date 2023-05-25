@@ -9,13 +9,17 @@ This repository contains documentation, tools and scripts for managing our self 
 We install the OS via Hetzner's rescue mode. Rescue mode should be enabled with the `devops-talos-manager` SSH key. Once logged in to the Rescue OS we can use the `installimage` tool to install Ubuntu 22.04 on the server:
 
 ```bash
-installimage -a \
+IP=<ip>
+ssh root@$IP -i ~/.ssh/devops-talos-manager.pem "/root/.oldroot/nfs/install/installimage -a \
   -n github-actions-runner \
   -r no \
   -i root/.oldroot/nfs/install/../images/Ubuntu-2204-jammy-amd64-base.tar.gz \
   -p /boot/efi:esp:256M,swap:swap:31G,/boot:ext3:1024M,/:ext4:all \
   -d nvme0n1,nvme1n1 && reboot
+"
 ```
+
+NOTE: Because `installimage` is an alias for `/root/.oldroot/nfs/install/installimage` we need to specify the full path to the image file to run it directly via `ssh`.
 
 ### Running the bootstrap script
 
