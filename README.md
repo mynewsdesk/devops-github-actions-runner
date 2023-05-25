@@ -2,6 +2,8 @@
 
 This repository contains documentation, tools and scripts for managing our self hosted GitHub Actions runners on Hetzner.
 
+NOTE: Though the repository is public to provide a reference how to setup self hosted GitHub Actions runners on Hetzner, the scripts will need tweaking to fit other organisations (ie. hard coded references to our "mynewsdesk" organisation).
+
 ## Adding a new runner
 
 ### Installing the OS
@@ -26,7 +28,7 @@ NOTE: Because `installimage` is an alias for `/root/.oldroot/nfs/install/install
 ```bash
 IP=<ip>
 scp -i ~/.ssh/devops-talos-manager.pem bin/bootstrap root@$IP:
-ssh root@$IP -i ~/.ssh/devops-talos-manager.pem "chmod +x bootstrap && ./bootstrap"
+ssh root@$IP -i ~/.ssh/devops-talos-manager.pem "chmod +x bootstrap && time ./bootstrap && reboot"
 ```
 
 ### Installing the GitHub runner agent

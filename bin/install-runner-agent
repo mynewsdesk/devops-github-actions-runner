@@ -29,9 +29,15 @@ sudo -u runner ./config.sh --unattended --url https://github.com/mynewsdesk --to
 echo
 echo "Configuring as a service..."
 
+./svc.sh install runner
+
 # Inject sourcing of .profile below '# insert anything to setup env when running as a service'
 # NOTE: May need changing if the runner script changes (based on https://github.com/actions/runner/blob/8db8bbe13a0dabc165d0ff19a1ecb85a4fe86dd8/src/Misc/layoutbin/runsvc.sh#L16)
 sed -i "16i \n# added by mynewsdesk install script:\nsource /home/runner/.profile\n" /home/runner/actions-runner/runsvc.sh
 
-./svc.sh install runner
 ./svc.sh start
+
+echo
+echo "Setting hostname to include $RUNNER_NAME..."
+
+hostnamectl set-hostname $(hostname)-$RUNNER_NAME

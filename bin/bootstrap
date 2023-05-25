@@ -140,8 +140,7 @@ wget -q -O - https://github.com/bitnami-labs/sealed-secrets/releases/download/v0
 wget -q -O - https://github.com/boz/kail/releases/download/v0.16.1/kail_v0.16.1_linux_amd64.tar.gz | tar xz -C /usr/bin kail && chmod +x /usr/bin/kail
 wget -q -O /usr/bin/k https://raw.githubusercontent.com/reclaim-the-stack/k/master/k && chmod +x /usr/bin/k
 
+echo
 echo "All done! 🎉"
 echo
-echo "Rebooting..."
-
-reboot
+echo "Please reboot the machine to complete the installation."
