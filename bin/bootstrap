@@ -1,0 +1,147 @@
+#!/bin/bash -l
+
+# This script installs the services and tools needed for our CI/CD pipeline. It should
+# be run as root and is designed to not require any arguments to complete.
+#
+# Reference to what's installed on the official Github Actions ubuntu image:
+# https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md
+
+set -e
+
+# Timezone
+timedatectl set-timezone UTC
+
+# Fix annoying locale warnings
+echo LANG=en_US.utf-8 >> /etc/environment
+echo LC_ALL=en_US.utf-8 >> /etc/environment
+
+# Prepare apt
+export DEBIAN_FRONTEND=noninteractive
+apt update
+apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
+
+# Add runner user (gecos argument disables prompts)
+adduser runner --disabled-password --gecos ""
+
+# Install essentials
+apt install git curl autoconf bison build-essential jq unzip apt-transport-https -y
+
+# yq
+wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+
+# Postgres 15
+echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc > /etc/apt/trusted.gpg.d/postgres.asc
+apt update
+apt install postgresql-15 libpq-dev -y # libpq-dev is needed for clients like the pg gem
+systemctl enable postgresql
+
+runuser -l postgres -c "createuser --superuser runner"
+runuser -l runner -c "createdb runner"
+
+echo "local all all trust
+host all all 127.0.0.1/32 trust
+host all all ::1/128 trust" > /etc/postgresql/15/main/pg_hba.conf
+
+systemctl reload postgresql
+
+# Redis 7+
+# https://redis.io/docs/getting-started/installation/install-redis-on-linux/
+
+curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/redis.list
+apt update
+apt install redis -y
+systemctl enable redis-server
+
+# Elasticsearch
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+# Version 8.x
+# echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-8.x.list
+# apt update
+# apt install elasticsearch -y
+# yq eval '.xpack.security.enabled = false' -i /etc/elasticsearch/elasticsearch.yml
+
+# Version 7.x (open source licensed)
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+apt update
+apt install elasticsearch-oss -y
+
+systemctl daemon-reload
+systemctl start elasticsearch
+systemctl enable elasticsearch
+
+# Heroku
+
+curl https://cli-assets.heroku.com/install.sh | sh
+
+# AWS CLI
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
+unzip awscliv2.zip
+rm awscliv2.zip
+aws/install
+rm -rf aws
+
+# Docker
+# https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | tee /etc/apt/sources.list.d/docker.list
+apt update
+apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+
+usermod -aG docker runner
+
+# Github CLI
+
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list
+apt update
+apt install gh -y
+
+# Node via volta
+
+runuser -l runner -c "curl https://get.volta.sh | bash"
+runuser -l runner -c "volta install node"
+runuser -l runner -c "volta install yarn"
+
+# Ruby via rbenv
+
+apt install libssl-dev libreadline-dev zlib1g-dev libyaml-dev libreadline-dev libncurses5-dev libffi-dev libgdbm-dev -y
+
+echo "gem: --no-document" > ~/.gemrc
+
+runuser -l runner -c "curl -fsSL https://raw.githubusercontent.com/rbenv/rbenv-installer/main/bin/rbenv-installer | bash"
+runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
+echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
+echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
+runuser -l runner -c "rbenv install 3.2.0 && rbenv global 3.2.0"
+
+# Kubectl
+
+curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.asc https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.asc] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+apt update
+apt install -y kubectl
+
+# Configure Git
+
+runuser -l runner -c "git config --global user.name runner"
+runuser -l runner -c "git config --global user.email runner@mynewsdesk.com"
+
+# k
+
+wget -q -O - https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.20.5/kubeseal-0.20.5-linux-amd64.tar.gz | tar xz -C /usr/bin/ kubeseal && chmod +x /usr/bin/kubeseal
+wget -q -O - https://github.com/boz/kail/releases/download/v0.16.1/kail_v0.16.1_linux_amd64.tar.gz | tar xz -C /usr/bin kail && chmod +x /usr/bin/kail
+wget -q -O /usr/bin/k https://raw.githubusercontent.com/reclaim-the-stack/k/master/k && chmod +x /usr/bin/k
+
+echo "All done! 🎉"
+echo
+echo "Rebooting..."
+
+reboot
