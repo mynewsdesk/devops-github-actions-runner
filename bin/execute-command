@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Define a list of servers
+servers="65.109.97.21 65.109.97.19 65.109.97.17"
+
+# Command to run
+command=$1
+
+if [ ! -f ~/.ssh/devops-talos-manager.pem ]; then
+  echo "Error: You must add the ~/.ssh/devops-talos-manager.pem private key for authentication"
+  fatal
+fi
+
+# Iterate over servers and run command
+for server in $servers
+do
+  ssh root@$server -i ~/.ssh/devops-talos-manager.pem $command
+done
