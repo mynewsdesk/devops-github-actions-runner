@@ -123,6 +123,7 @@ runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
 runuser -l runner -c "rbenv install 3.2.0 && rbenv global 3.2.0"
+runuser -l runner -c "rbenv install 2.7.8"
 
 # Kubectl
 

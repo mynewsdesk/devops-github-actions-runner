@@ -117,4 +117,11 @@ If you just want to git pull/push to a Heroku git remote you can use an url in t
 
 ### AWS
 
-The `aws` CLI is pre-installed on the runner. We have not yet used this but presumably we can use the official [configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials) to use it.
+The `aws` CLI is pre-installed on the runner. For authentication put the contents of `AWS_CLI_CREDENTIALS` into `~/.aws/credentials`. This gives you access to `dev`, `staging` and `prod` AWS profiles with full access to their respective AWS accounts, eg:
+
+```yaml
+      - name: Prepare AWS CLI credentials
+        run: |
+          mkdir -p ~/.aws
+          echo "${{ secrets.AWS_CLI_CREDENTIALS }}" > ~/.aws/credentials
+```
