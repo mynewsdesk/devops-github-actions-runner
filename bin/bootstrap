@@ -96,7 +96,7 @@ apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-co
 
 usermod -aG docker runner
 
-su - runner -c "docker buildx create --name builder --use && docker buildx inspect --bootstrap"
+runuser -l runner -c "docker buildx create --name builder --use && docker buildx inspect --bootstrap"
 
 # Github CLI
 
@@ -135,6 +135,10 @@ apt install -y kubectl
 
 runuser -l runner -c "git config --global user.name runner"
 runuser -l runner -c "git config --global user.email runner@mynewsdesk.com"
+
+# Java
+
+apt install -y default-jre
 
 # k
 
