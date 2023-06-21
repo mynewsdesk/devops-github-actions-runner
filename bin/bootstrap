@@ -147,6 +147,20 @@ wget -q -O - https://github.com/bitnami-labs/sealed-secrets/releases/download/v0
 wget -q -O - https://github.com/boz/kail/releases/download/v0.16.1/kail_v0.16.1_linux_amd64.tar.gz | tar xz -C /usr/bin kail && chmod +x /usr/bin/kail
 wget -q -O /usr/bin/k https://raw.githubusercontent.com/reclaim-the-stack/k/master/k && chmod +x /usr/bin/k
 
+# Cypress dependencies
+
+# https://docs.cypress.io/guides/continuous-integration/introduction#Dependencies
+apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
+
+# Chrome (for Cypress)
+
+apt-get install software-properties-common -y
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+# dpkg will fail due to missing dependencies, running apt install -f installs them
+dpkg -i google-chrome-stable_current_amd64.deb || apt install -f -y && dpkg -i google-chrome-stable_current_amd64.deb
+
+# Done!
+
 echo
 echo "All done! 🎉"
 echo
