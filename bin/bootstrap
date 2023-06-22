@@ -158,6 +158,7 @@ apt-get install software-properties-common -y
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 # dpkg will fail due to missing dependencies, running apt install -f installs them
 dpkg -i google-chrome-stable_current_amd64.deb || apt install -f -y && dpkg -i google-chrome-stable_current_amd64.deb
+rm google-chrome-stable_current_amd64.deb
 
 # Done!
 
