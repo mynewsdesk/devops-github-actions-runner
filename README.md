@@ -12,13 +12,13 @@ We install the OS via Hetzner's rescue mode. Rescue mode should be enabled with 
 
 ```bash
 IP=<ip>
+RUNNER_NAME=AX52-<n>
 ssh root@$IP -i ~/.ssh/devops-talos-manager.pem "/root/.oldroot/nfs/install/installimage -a \
-  -n github-actions-runner \
+  -n github-actions-runner-$RUNNER_NAME \
   -r no \
   -i root/.oldroot/nfs/install/../images/Ubuntu-2204-jammy-amd64-base.tar.gz \
   -p /boot/efi:esp:256M,swap:swap:31G,/boot:ext3:1024M,/:ext4:all \
-  -d nvme0n1,nvme1n1 && reboot
-"
+  -d nvme0n1,nvme1n1 && reboot"
 ```
 
 NOTE: Because `installimage` is an alias for `/root/.oldroot/nfs/install/installimage` we need to specify the full path to the image file to run it directly via `ssh`.
