@@ -43,8 +43,7 @@ GITHUB_TOKEN=<personal-access-token>
 scp -i ~/.ssh/devops-talos-manager.pem bin/install-runner-agent root@$IP:
 ssh root@$IP -i ~/.ssh/devops-talos-manager.pem "
   chmod +x install-runner-agent &&
-  GITHUB_TOKEN=$GITHUB_TOKEN RUNNER_NAME=$RUNNER_NAME ./install-runner-agent
-"
+  GITHUB_TOKEN=$GITHUB_TOKEN RUNNER_NAME=$RUNNER_NAME ./install-runner-agent"
 ```
 
 Installation notes:
