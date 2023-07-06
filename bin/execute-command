@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define a list of servers
-servers="65.109.97.21 65.109.97.19 65.109.97.17"
+servers="65.109.97.21 65.109.97.19 65.109.97.17 144.76.76.57"
 
 # Command to run
 command=$1
