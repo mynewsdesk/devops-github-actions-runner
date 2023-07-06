@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Update ruby-build
+bin/execute-command "runuser -l runner -c 'git -C /home/runner/.rbenv/plugins/ruby-build pull'"
