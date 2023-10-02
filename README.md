@@ -4,6 +4,8 @@ This repository contains documentation, tools and scripts for managing our self 
 
 NOTE: Though the repository is public to provide a reference how to setup self hosted GitHub Actions runners on Hetzner, the scripts will need tweaking to fit other organisations (ie. hard coded references to our "mynewsdesk" organisation).
 
+NOTE2: Self hosted runners will only run on private repositories by default. See [Public vs Private repositories](#public-vs-private-repositories) for more information.
+
 ## Adding a new runner
 
 ### Installing the OS
@@ -124,3 +126,9 @@ The `aws` CLI is pre-installed on the runner. For authentication put the content
           mkdir -p ~/.aws
           echo "${{ secrets.AWS_CLI_CREDENTIALS }}" > ~/.aws/credentials
 ```
+
+## Public vs Private repositories
+
+The runners are configured to only run workflows from private repositories by default to adhere to GitHub's recommended security best practices.
+
+For public repositories (and forks of public repositories), GitHub's own runners can be used instead. An example of a forked repository using GitHub's own runners is [mynewsdesk/omniauth-redirect-proxy](https://github.com/mynewsdesk/omniauth-redirect-proxy/blob/master/.github/workflows/).
