@@ -24,7 +24,7 @@ apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-p
 adduser runner --disabled-password --gecos ""
 
 # Install essentials
-apt install git curl autoconf bison build-essential jq unzip apt-transport-https -y
+apt install git curl autoconf bison build-essential jq unzip apt-transport-https libvips file -y
 
 # yq
 wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
@@ -114,7 +114,7 @@ runuser -l runner -c "volta install yarn"
 
 # Ruby via rbenv
 
-apt install libssl-dev libreadline-dev zlib1g-dev libyaml-dev libreadline-dev libncurses5-dev libffi-dev libgdbm-dev -y
+apt install libssl-dev libreadline-dev zlib1g-dev libyaml-dev libreadline-dev libncurses5-dev libffi-dev libgdbm-dev rustc -y
 
 echo "gem: --no-document" > ~/.gemrc
 
@@ -122,7 +122,8 @@ runuser -l runner -c "curl -fsSL https://raw.githubusercontent.com/rbenv/rbenv-i
 runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
-runuser -l runner -c "rbenv install 3.2.0 && rbenv global 3.2.0"
+runuser -l runner -c "rbenv install 3.3.0 && rbenv global 3.3.0"
+runuser -l runner -c "rbenv install 3.2.0"
 runuser -l runner -c "rbenv install 2.7.8"
 
 # Kubectl

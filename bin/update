@@ -2,3 +2,6 @@
 
 # Update ruby-build
 bin/execute-command "runuser -l runner -c 'git -C /home/runner/.rbenv/plugins/ruby-build pull'"
+bin/execute-command "apt update"
+bin/execute-command "DEBIAN_FRONTEND=noninteractive apt upgrade -y"
+bin/execute-command "apt autoremove -y"

@@ -53,6 +53,18 @@ Installation notes:
 - The service configuration is found under `/etc/systemd/system/`
 - The script used for running the service is at `/home/runner/actions-runner/runsvc.sh`
 
+## Updating the runner
+
+The actual github runner is updated automatically. From https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners:
+
+> Receive automatic updates for the self-hosted runner application only, though you may disable automatic updates of the runner. For more information about controlling runner software updates on self-hosted runners, see "Autoscaling with self-hosted runners." You are responsible for updating the operating system and all other software.
+
+To update the OS and other components run `bin/update`.
+
+You can also run `bin/execute-command "<command>"` to conveniently run any command on all GitHub runners.
+
+Inspect the scripts in the `bin/` directory for more information.
+
 ## Credentials / Secrets
 
 In our previous CI setup using Buildkite we pre-baked all necessary credentials into the EC2 image. This had a major benefit in that a lot of integrations required 0 config and everything "just worked" out of the box. The downside is that it required quite a bit of manual work to update the image, making credential rotation more painful.
