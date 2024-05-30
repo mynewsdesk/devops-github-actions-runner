@@ -122,7 +122,7 @@ runuser -l runner -c "curl -fsSL https://raw.githubusercontent.com/rbenv/rbenv-i
 runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
-runuser -l runner -c "rbenv install 3.3.0 && rbenv global 3.3.0"
+runuser -l runner -c "rbenv install 3.3.2 && rbenv global 3.3.2"
 runuser -l runner -c "rbenv install 3.2.0"
 runuser -l runner -c "rbenv install 2.7.8"
 
