@@ -24,7 +24,7 @@ apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-p
 adduser runner --disabled-password --gecos ""
 
 # Install essentials
-apt install git curl autoconf bison build-essential jq unzip apt-transport-https libvips file -y
+apt install git curl autoconf bison build-essential jq unzip apt-transport-https ca-certificates libvips file gnupg -y
 
 # yq
 wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
@@ -72,6 +72,18 @@ apt install elasticsearch-oss -y
 systemctl daemon-reload
 systemctl start elasticsearch
 systemctl enable elasticsearch
+
+# ClickHouse
+# Based on https://clickhouse.com/docs/en/install#install-from-deb-packages
+
+curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main" | tee /etc/apt/sources.list.d/clickhouse.list
+apt-get update
+apt-get install clickhouse-server clickhouse-client -y
+
+systemctl start clickhouse-server
+systemctl enable clickhouse-server
 
 # Heroku
 
@@ -122,7 +134,7 @@ runuser -l runner -c "curl -fsSL https://raw.githubusercontent.com/rbenv/rbenv-i
 runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
-runuser -l runner -c "rbenv install 3.3.2 && rbenv global 3.3.2"
+runuser -l runner -c "rbenv install 3.3.5 && rbenv global 3.3.5"
 runuser -l runner -c "rbenv install 3.2.0"
 runuser -l runner -c "rbenv install 2.7.8"
 
