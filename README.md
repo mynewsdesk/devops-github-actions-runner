@@ -10,7 +10,7 @@ NOTE2: Self hosted runners will only run on private repositories by default. See
 
 ### Installing the OS
 
-We install the OS via Hetzner's rescue mode. Rescue mode should be enabled with the `devops-talos-manager` SSH key. Once logged in to the Rescue OS we can use the `installimage` tool to install Ubuntu 22.04 on the server:
+We install the OS via Hetzner's rescue mode. Rescue mode should be enabled with the `devops-talos-manager` SSH key. Once logged in to the Rescue OS we can use the `installimage` tool to install Ubuntu 24.04 on the server:
 
 ```bash
 IP=<ip>
@@ -18,7 +18,7 @@ RUNNER_NAME=AX52-<n>
 ssh root@$IP -i ~/.ssh/devops-talos-manager.pem "/root/.oldroot/nfs/install/installimage -a \
   -n github-actions-runner-$RUNNER_NAME \
   -r no \
-  -i root/.oldroot/nfs/install/../images/Ubuntu-2204-jammy-amd64-base.tar.gz \
+  -i root/.oldroot/nfs/install/../images/Ubuntu-2404-noble-amd64-base.tar.gz \
   -p /boot/efi:esp:256M,swap:swap:31G,/boot:ext3:1024M,/:ext4:all \
   -d nvme0n1,nvme1n1 && reboot"
 ```

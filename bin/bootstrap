@@ -29,19 +29,15 @@ apt install git curl autoconf bison build-essential jq unzip apt-transport-https
 # yq
 wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
 
-# Postgres 15
-echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc > /etc/apt/trusted.gpg.d/postgres.asc
-apt update
-apt install postgresql-15 libpq-dev -y # libpq-dev is needed for clients like the pg gem
-systemctl enable postgresql
+# Postgres 16
+apt install postgresql-16 libpq-dev -y # libpq-dev is needed for clients like the pg gem
 
 runuser -l postgres -c "createuser --superuser runner"
 runuser -l runner -c "createdb runner"
 
 echo "local all all trust
 host all all 127.0.0.1/32 trust
-host all all ::1/128 trust" > /etc/postgresql/15/main/pg_hba.conf
+host all all ::1/128 trust" > /etc/postgresql/16/main/pg_hba.conf
 
 systemctl reload postgresql
 
@@ -135,8 +131,7 @@ runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
 runuser -l runner -c "rbenv install 3.3.5 && rbenv global 3.3.5"
-runuser -l runner -c "rbenv install 3.2.0"
-runuser -l runner -c "rbenv install 2.7.8"
+runuser -l runner -c "rbenv install 3.3.2"
 
 # Kubectl
 
@@ -156,16 +151,10 @@ runuser -l runner -c "git config --global user.email runner@mynewsdesk.com"
 
 apt install -y default-jre
 
-# k
-
-wget -q -O - https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.20.5/kubeseal-0.20.5-linux-amd64.tar.gz | tar xz -C /usr/bin/ kubeseal && chmod +x /usr/bin/kubeseal
-wget -q -O - https://github.com/boz/kail/releases/download/v0.16.1/kail_v0.16.1_linux_amd64.tar.gz | tar xz -C /usr/bin kail && chmod +x /usr/bin/kail
-wget -q -O /usr/bin/k https://raw.githubusercontent.com/reclaim-the-stack/k/master/k && chmod +x /usr/bin/k
-
 # Cypress dependencies
 
-# https://docs.cypress.io/guides/continuous-integration/introduction#Dependencies
-apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
+# https://docs.cypress.io/app/get-started/install-cypress#Linux-Prerequisites
+apt-get install libgtk2.0-0t64 libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb -y
 
 # Chrome (for Cypress)
 
