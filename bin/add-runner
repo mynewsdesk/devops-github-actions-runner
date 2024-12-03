@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+
+# Script to add a new GitHub Actions runner to the organization.
+# If executed against an existing runner, it will remove the existing
+# runner first and proceed to reinstall from scratch.
+
+require "net/http"
+require "json"
+
+GITHUB_TOKEN = ENV.fetch("GITHUB_TOKEN")
+IP = ENV.fetch("IP")
+RUNNER_NAME = ENV.fetch("RUNNER_NAME")
+
+puts "Removing existing runner from GitHub..."
+
+def make_request(request)
+  request["Accept"] = "application/vnd.github.v3+json"
+  request["Authorization"] = "token #{GITHUB_TOKEN}"
+
+  Net::HTTP.start("api.github.com", 443, use_ssl: true) do |http|
+    http.request(request)
+  end
+end
+
+response = make_request(Net::HTTP::Get.new("/orgs/mynewsdesk/actions/runners"))
+if response.code != "200"
+  abort "Error: Failed to list runners: #{response.code} #{response.body}"
+end
+
+existing_runner = JSON.parse(response.body).fetch("runners").find { |runner| runner["name"] == RUNNER_NAME }
+if existing_runner
+  runner_id = existing_runner.fetch("id")
+  puts "Removing existing runner #{RUNNER_NAME} with id #{runner_id}..."
+
+  response = make_request(Net::HTTP::Delete.new("/orgs/mynewsdesk/actions/runners/#{runner_id}"))
+
+  if response.code == "204"
+    puts "Existing runner removed!"
+  else
+    abort "Error: Failed to remove existing runner: #{response.code} #{response.body}"
+  end
+end
+
+puts "Reinstalling OS on #{IP}..."
+
+# NOTE: Because `installimage` is an alias for `/root/.oldroot/nfs/install/installimage`
+# we need to specify the full path to the image file to run it directly via `ssh`.
+system %(
+  ssh root@#{IP} -i ~/.ssh/devops-talos-manager.pem "/root/.oldroot/nfs/install/installimage -a \
+    -n github-actions-runner-#{RUNNER_NAME} \
+    -r no \
+    -i root/.oldroot/nfs/install/../images/Ubuntu-2404-noble-amd64-base.tar.gz \
+    -p /boot/efi:esp:256M,swap:swap:31G,/boot:ext3:1024M,/:ext4:all \
+    -d nvme0n1,nvme1n1 && reboot"
+)
+
+puts "Waiting for the server to come back online..."
+
+start = Time.now
+loop do
+  print "."
+  break if system("ssh -q -o ConnectTimeout=1 root@#{IP} -i ~/.ssh/devops-talos-manager.pem true")
+end
+seconds_taken = Time.now - start
+puts
+
+puts "Server is back online after #{seconds_taken} seconds!"
+
+puts "Copying the bootstrap script to the server..."
+
+success = system %(scp -i ~/.ssh/devops-talos-manager.pem bin/bootstrap root@#{IP}:)
+abort "Error: Failed to copy the bootstrap script to the server" unless success
+
+puts "Executing the bootstrap script..."
+
+success = system %(ssh root@#{IP} -i ~/.ssh/devops-talos-manager.pem "chmod +x bootstrap && time ./bootstrap && reboot")
+abort "Error: Failed to execute the bootstrap script" unless success
+
+puts "Waiting for the server to come back online..."
+
+start = Time.now
+loop do
+  print "."
+  break if system("ssh -q -o ConnectTimeout=1 root@#{IP} -i ~/.ssh/devops-talos-manager.pem true")
+end
+seconds_taken = Time.now - start
+puts
+
+puts "Copying the runner agent install script to the server..."
+
+success = system %(scp -i ~/.ssh/devops-talos-manager.pem bin/install-runner-agent root@#{IP}:)
+abort "Error: Failed to copy the runner agent install script to the server" unless success
+
+puts "Executing the runner agent install script..."
+
+success = system %(ssh root@#{IP} -i ~/.ssh/devops-talos-manager.pem "chmod +x install-runner-agent && GITHUB_TOKEN=#{GITHUB_TOKEN} RUNNER_NAME=#{RUNNER_NAME} ./install-runner-agent")
+abort "Error: Failed to execute the runner agent install script" unless success

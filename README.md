@@ -8,9 +8,21 @@ NOTE2: Self hosted runners will only run on private repositories by default. See
 
 ## Adding a new runner
 
+Prerequisites: Activate and reboot the target server into Hetzner's Rescue OS with the `devops-talos-manager` SSH key.
+
+### Just use the script
+
+The steps documented below have been automated in the `bin/add-runner` script. You can run it like this:
+
+```bash
+GITHUB_TOKEN=<root-user-personal-access-token> IP=<server-ip> RUNNER_NAME=<runner-name> bin/add-runner
+```
+
+We use `RUNNER_NAME` in the style of `AX52-<n>` where AX52 is the name of the Hetzner server type and `<n>` is a number that increments for each additional server.
+
 ### Installing the OS
 
-We install the OS via Hetzner's rescue mode. Rescue mode should be enabled with the `devops-talos-manager` SSH key. Once logged in to the Rescue OS we can use the `installimage` tool to install Ubuntu 24.04 on the server:
+Once logged in to the Rescue OS we can use the `installimage` tool to install Ubuntu 24.04 on the server:
 
 ```bash
 IP=<ip>
