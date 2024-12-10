@@ -143,10 +143,8 @@ apt install -y kubectl
 
 # K
 
-mkdir k
 wget https://github.com/reclaim-the-stack/k/releases/download/01ce236/k-linux-amd64.tar.gz
-tar -xvf k-linux-amd64.tar.gz -C k
-ln -s `pwd`/k/k /usr/local/bin/k
+tar -xvf k-linux-amd64.tar.gz -C /usr/local/bin/
 rm k-linux-amd64.tar.gz
 
 # Configure Git
