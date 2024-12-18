@@ -143,9 +143,11 @@ apt install -y kubectl
 
 # K
 
-wget https://github.com/reclaim-the-stack/k/releases/download/01ce236/k-linux-amd64.tar.gz
-tar -xvf k-linux-amd64.tar.gz -C /usr/local/bin/
-rm k-linux-amd64.tar.gz
+# Note: We add each dependent executable to avoid failing the command check conditionals in:
+# https://github.com/reclaim-the-stack/k-action/blob/22c2556344111465d0cc0989684eae73e95c405e/action.sh#L24-L37
+wget -q -O - https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.27.1/kubeseal-0.27.1-linux-amd64.tar.gz | tar xz -C /usr/bin/ kubeseal && chmod +x /usr/bin/kubeseal
+wget -q -O - https://github.com/boz/kail/releases/download/v0.17.4/kail_v0.17.4_linux_amd64.tar.gz | tar xz -C /usr/bin kail && chmod +x /usr/bin/kail
+wget -q -O /usr/bin/k https://raw.githubusercontent.com/reclaim-the-stack/k/master/k && chmod +x /usr/bin/k
 
 # Configure Git
 
