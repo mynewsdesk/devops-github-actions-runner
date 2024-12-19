@@ -21,7 +21,7 @@ echo "Configuring runner..."
 
 mkdir -p /home/runner/actions-runner
 cd /home/runner/actions-runner
-wget -q -O - https://github.com/actions/runner/releases/download/v2.320.0/actions-runner-linux-x64-2.320.0.tar.gz | tar xz
+wget -q -O - https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz | tar xz
 chown -R runner .
 
 sudo -u runner ./config.sh --unattended --url https://github.com/mynewsdesk --token $RUNNER_TOKEN --name $RUNNER_NAME --labels linux,amd64,hetzner,ax52,self-hosted,high-cpu
@@ -33,7 +33,7 @@ echo "Configuring as a service..."
 
 # Inject sourcing of .profile below '# insert anything to setup env when running as a service'
 # NOTE: May need changing if the runner script changes (based on https://github.com/actions/runner/blob/8db8bbe13a0dabc165d0ff19a1ecb85a4fe86dd8/src/Misc/layoutbin/runsvc.sh#L16)
-sed -i "16i \n# added by mynewsdesk install script:\nsource /home/runner/.profile\n" /home/runner/actions-runner/runsvc.sh
+sed -i "16i # added by mynewsdesk install script:\nsource /home/runner/.profile\n" /home/runner/actions-runner/runsvc.sh
 
 ./svc.sh start
 
