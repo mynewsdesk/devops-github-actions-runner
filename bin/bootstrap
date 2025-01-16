@@ -60,10 +60,11 @@ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --dearmor -o
 # apt install elasticsearch -y
 # yq eval '.xpack.security.enabled = false' -i /etc/elasticsearch/elasticsearch.yml
 
-# Version 7.x (open source licensed)
-echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+# Version 7.x
+curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elastic.gpg
+echo "deb [signed-by=/usr/share/keyrings/elastic.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
 apt update
-apt install elasticsearch-oss -y
+apt install elasticsearch
 
 systemctl daemon-reload
 systemctl start elasticsearch
