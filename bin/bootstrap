@@ -131,7 +131,7 @@ runuser -l runner -c "curl -fsSL https://raw.githubusercontent.com/rbenv/rbenv-i
 runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
-runuser -l runner -c "rbenv install 3.3.5 && rbenv global 3.3.5"
+runuser -l runner -c "rbenv install 3.4.2 && rbenv global 3.4.2"
 
 # Kubectl
 
