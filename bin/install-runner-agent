@@ -21,7 +21,7 @@ echo "Configuring runner..."
 
 mkdir -p /home/runner/actions-runner
 cd /home/runner/actions-runner
-wget -q -O - https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz | tar xz
+wget -q -O - https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz | tar xz
 chown -R runner .
 
 sudo -u runner ./config.sh --unattended --url https://github.com/mynewsdesk --token $RUNNER_TOKEN --name $RUNNER_NAME --labels linux,amd64,hetzner,ax52,self-hosted,high-cpu
@@ -31,9 +31,25 @@ echo "Configuring as a service..."
 
 ./svc.sh install runner
 
-# Inject sourcing of .profile below '# insert anything to setup env when running as a service'
-# NOTE: May need changing if the runner script changes (based on https://github.com/actions/runner/blob/8db8bbe13a0dabc165d0ff19a1ecb85a4fe86dd8/src/Misc/layoutbin/runsvc.sh#L16)
-sed -i "16i # added by mynewsdesk install script:\nsource /home/runner/.profile\n" /home/runner/actions-runner/runsvc.sh
+# NOTE: To enable rbenv, volta etc inside our github runners we need to modify the runsvc.sh script.
+# However, this file is ocasionally updated by GitHub when updating the runner which suddenly breaks
+# our runners since they can't find ruby, node, yarn etc. To work around this we create a copy of the
+# runsvc.sh script and modify that one instead, and then point the systemd service to that script.
+
+cp /home/runner/actions-runner/runsvc.sh /home/runner/actions-runner/runsvc-with-profile.sh
+chmod +x /home/runner/actions-runner/runsvc-with-profile.sh
+chown runner:runner /home/runner/actions-runner/runsvc-with-profile.sh
+
+mkdir -p /etc/systemd/system/actions.runner.mynewsdesk.$RUNNER_NAME.service.d
+echo "
+[Service]
+ExecStart=
+ExecStart=/home/runner/actions-runner/runsvc-with-profile.sh
+" > /etc/systemd/system/actions.runner.mynewsdesk.$RUNNER_NAME.service.d/override.conf
+
+# Inject sourcing of .profile below '# insert anything to setup env when running as a service. Assumed to be line 16':
+# https://github.com/actions/runner/blob/8db8bbe13a0dabc165d0ff19a1ecb85a4fe86dd8/src/Misc/layoutbin/runsvc.sh#L16
+sed -i "16i # added by mynewsdesk install script:\nsource /home/runner/.profile\n" /home/runner/actions-runner/runsvc-with-profile.sh
 
 ./svc.sh start
 
