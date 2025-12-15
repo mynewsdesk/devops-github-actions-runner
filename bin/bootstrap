@@ -24,7 +24,8 @@ apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-p
 adduser runner --disabled-password --gecos ""
 
 # Install essentials
-apt install git curl autoconf bison build-essential jq unzip apt-transport-https ca-certificates libvips file gnupg -y
+# poppler-utils for PDF to text utilities (used by eg. mnd-monitor)
+apt install git curl autoconf bison build-essential jq unzip apt-transport-https ca-certificates libvips poppler-utils file gnupg -y
 
 # yq
 wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
