@@ -40,6 +40,20 @@ echo "local all all trust
 host all all 127.0.0.1/32 trust
 host all all ::1/128 trust" > /etc/postgresql/16/main/pg_hba.conf
 
+# CI data is throwaway, so trade durability for speed. DROP DATABASE forces an
+# immediate checkpoint, so without fsync dropping the previous run's test databases
+# completes at memory speed instead of stalling on dirty buffers (measured 15s -> 6s
+# for mynewsdesk's database bootstrap when spec runs follow each other closely).
+echo "fsync = off
+synchronous_commit = off
+full_page_writes = off
+autovacuum = off" > /etc/postgresql/16/main/conf.d/ci-tuning.conf
+
+# With autovacuum off, vacuum nightly instead to keep the system catalogs tidy
+# (CREATE/DROP DATABASE churn leaves dead rows in the shared catalogs) and to
+# freeze tuples ahead of any forced anti-wraparound vacuum.
+echo "0 3 * * * postgres /usr/bin/vacuumdb --all --analyze --quiet" > /etc/cron.d/nightly-vacuumdb
+
 systemctl reload postgresql
 
 # Redis 7+
