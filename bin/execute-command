@@ -14,5 +14,7 @@ fi
 # Iterate over servers and run command
 for server in $servers
 do
+  echo "$server : $command"
+
   ssh root@$server -i ~/.ssh/devops-talos-manager.pem $command
 done
