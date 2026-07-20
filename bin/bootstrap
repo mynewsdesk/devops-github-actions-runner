@@ -25,6 +25,7 @@ adduser runner --disabled-password --gecos ""
 
 # Install essentials
 # poppler-utils for PDF to text utilities (used by eg. mnd-monitor)
+# libvips for image processing
 apt install git curl autoconf bison build-essential jq unzip apt-transport-https ca-certificates libvips poppler-utils file gnupg -y
 
 # yq
@@ -147,8 +148,8 @@ runuser -l runner -c 'echo "gem: --no-document" > ~/.gemrc'
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.bashrc
 echo 'eval "$(/home/runner/.rbenv/bin/rbenv init - bash)"' >> /home/runner/.profile
 runuser -l runner -c "rbenv install 3.4.2"
-runuser -l runner -c "rbenv install 3.4.7 && rbenv global 3.4.7"
-runuser -l runner -c "rbenv install 4.0.5 && rbenv global 4.0.5"
+runuser -l runner -c "rbenv install 3.4.7"
+runuser -l runner -c "rbenv install 4.0.6 && rbenv global 4.0.6"
 
 # Kubectl
 
