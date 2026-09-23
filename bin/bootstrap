@@ -123,6 +123,17 @@ usermod -aG docker runner
 
 runuser -l runner -c "docker buildx create --name builder --use && docker buildx inspect --bootstrap"
 
+# Elasticsearch 8 on port 9202, alongside the ES7 package on port 9200. Data lives in the
+# container's writable layer, which survives reboots but is discarded with the container.
+
+docker run -d --name elasticsearch8 --restart unless-stopped \
+  -p 127.0.0.1:9202:9200 \
+  -e discovery.type=single-node \
+  -e xpack.security.enabled=false \
+  -e cluster.routing.allocation.disk.threshold_enabled=false \
+  -e ES_JAVA_OPTS="-Xms2g -Xmx2g" \
+  docker.elastic.co/elasticsearch/elasticsearch:8.19.21
+
 # Github CLI
 
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
