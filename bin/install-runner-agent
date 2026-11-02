@@ -31,7 +31,7 @@ echo "Configuring as a service..."
 
 ./svc.sh install runner
 
-# NOTE: To enable rbenv, volta etc inside our github runners we need to modify the runsvc.sh script.
+# NOTE: To enable rbenv, mise etc inside our github runners we need to modify the runsvc.sh script.
 # However, this file is ocasionally updated by GitHub when updating the runner which suddenly breaks
 # our runners since they can't find ruby, node, yarn etc. To work around this we create a copy of the
 # runsvc.sh script and modify that one instead, and then point the systemd service to that script.
