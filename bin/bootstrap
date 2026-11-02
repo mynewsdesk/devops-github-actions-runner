@@ -142,11 +142,13 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githu
 apt update
 apt install gh -y
 
-# Node via volta
+# Node via mise
 
-runuser -l runner -c "curl https://get.volta.sh | bash"
-runuser -l runner -c "volta install node"
-runuser -l runner -c "volta install yarn"
+runuser -l runner -c "curl https://mise.run | sh"
+echo 'eval "$(/home/runner/.local/bin/mise activate bash)"' >> /home/runner/.bashrc
+echo 'eval "$(/home/runner/.local/bin/mise activate bash --shims)"' >> /home/runner/.profile
+echo 'export MISE_TRUSTED_CONFIG_PATHS=/home/runner/actions-runner/_work' >> /home/runner/.profile
+runuser -l runner -c "mise use --global node@lts yarn@1"
 
 # Ruby via rbenv
 
